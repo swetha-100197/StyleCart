@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+     DB_MODE: local
      DB_USER: postgres
      DB_HOST: localhost
      DB_NAME: stylecart_db
