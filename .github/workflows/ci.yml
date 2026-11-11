@@ -10,6 +10,28 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+     DB_USER: postgres
+     DB_HOST: localhost
+     DB_NAME: stylecart_db
+     DB_PASSWORD: postgres
+     DB_PORT: 5432
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: stylecart_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Get project code
         uses: actions/checkout@v4
@@ -26,3 +48,11 @@ jobs:
       - name: Check backend JavaScript syntax
         working-directory: ./backend
         run: node --check server.js
+
+      - name: Create database table
+        working-directory: ./backend
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -d stylecart_db -f queries.sql
+
+      - name: Run automated tests
+        working-directory: ./backend
+        run: npm test
