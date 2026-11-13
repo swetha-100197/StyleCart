@@ -1,5 +1,5 @@
 
-name: StyleCart CI Pipeline
+name: StyleCart CI/CD Pipeline
 
 on:
   push:
@@ -8,15 +8,16 @@ on:
 
 jobs:
   test:
+    name: Run Backend Tests
     runs-on: ubuntu-latest
 
     env:
-     DB_MODE: local
-     DB_USER: postgres
-     DB_HOST: localhost
-     DB_NAME: stylecart_db
-     DB_PASSWORD: postgres
-     DB_PORT: 5432
+      DB_MODE: local
+      DB_USER: postgres
+      DB_HOST: localhost
+      DB_NAME: stylecart_db
+      DB_PASSWORD: postgres
+      DB_PORT: 5432
 
     services:
       postgres:
@@ -57,3 +58,14 @@ jobs:
       - name: Run automated tests
         working-directory: ./backend
         run: npm test
+
+  deploy:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Trigger Render deployment
+        run: |
+          curl --fail --show-error --silent \
+            -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
